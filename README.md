@@ -1,7 +1,8 @@
 # polymer-typings
 These TypeScript type definitions for Polymer 1.0 are still a work in progress
 and are subject to change. I'm still figuring out the best way to use Polymer
-and TypeScript together.
+and TypeScript together. I've also written [some decorators](https://github.com/enlight/polymer-ts-decorators)
+to eliminate the need to create a separate prototype object.
 
 Usage
 =====
