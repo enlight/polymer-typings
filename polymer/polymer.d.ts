@@ -1,4 +1,4 @@
-declare module polymer {
+declare namespace polymer {
   /** Used to define a property on a Polymer element. */
   interface IProperty<T> {
     /** Constructor, one of `Boolean`, `Date`, `Number`, `String`, `Array`, or `Object`. */
@@ -59,12 +59,14 @@ declare module polymer {
   }
 
   interface Base extends HTMLElement {
+    /** The root of the local DOM. */
+    root: HTMLElement;
     /**
      * Returns a map of statically created nodes in the local DOM.
      * Any node specified in the element's template with an `id` is stored in the auto-generated
      * map, e.g. a node with an `id` of `name` can be retrived via `this.$.name`.
      */
-    $: HTMLElement;
+    $: any;
 
     // Property metadata functions
 
@@ -115,6 +117,22 @@ declare module polymer {
      * @param selector CSS selector that should match a `<content>` node, defaults to `content`.
      */
     getContentChildren(selector: string): HTMLElement[];
+    /**
+     * Add an event listener on a given element, late bound to a named method on this element.
+     * 
+     * @param node Element to add event listener to.
+     * @param eventName Name of event to listen for.
+     * @param methodName Name of handler method on `this` to call.
+     */
+    listen(node: HTMLElement, eventName: string, methodName: string): void;
+    /**
+     * Remove an event listener from a given element, late bound to a named method on this element.
+     * 
+     * @param node Element to remove event listener from.
+     * @param eventName Name of event to stop listening to.
+     * @param methodName Name of handler method on `this` to not call anymore.
+     */
+    unlisten(node: HTMLElement, eventName: string, methodName: string): void;
     /** Dispatches a custom event. */
     fire(
       type: string, detail?: Object, 
@@ -132,6 +150,70 @@ declare module polymer {
     importHref(href: string, onload: Function, onerror: Function): HTMLLinkElement;
     /** Creates and configures an element with the given properties. */
     create(tag: string, props: Object): HTMLElement;
+    // Path Notification
+    /**
+     * Notify interested parties that the value at a data path has changed.
+     *
+     * @param fromAbove Set to `true` to indicate that upward notification is not necessary.  
+     * @return `true` if the value at the data path actually changed.
+     */
+    notifyPath(path: string, value: any, fromAbove?: boolean): boolean;
+    /**
+     * Set the value at a data path and notify interested parties.
+     * 
+     * @param root Object relative to which the `path` should be evaluated, defaults to `this`.
+     */
+    set(path: string | Array<string | number>, value: any, root?: Object): void;
+    /**
+     * Get the value at a data path.
+     * 
+     * @param root Object relative to which the `path` should be evaluated, defaults to `this`.
+     */
+    get(path: string | Array<string | number>, root?: Object): any;
+    /** Add an alias for a data path, so that notifications are routed between them. */
+    linkPaths(to: string, from: string): void;
+    /** Remove a data path alias previously added by [[linkPaths]]. */
+    unlinkPaths(path: string): void;
+    /**
+     * Add items to then end of an array and notify interested parties of the change.
+     * 
+     * @param path Path to the array to modify.
+     * @param items One or more items to add.
+     * @return New length of the array after the items are added.
+     */
+    push(path: string, ...items: any[]): number;
+    /**
+     * Remove the last item from an array and notify interested parties of the change.
+     * 
+     * @param path Path to the array to modify.
+     * @return Item that was removed. 
+     */
+    pop(path: string): any;
+    /**
+     * Works similarly to Array.prototype.splice() but also notifies interested parties of the changes.
+     * 
+     * @param path Path to the array to modify.
+     * @param start Index at which to start modifying the array.
+     * @param deleteCount Number of items to remove starting from `start`.
+     * @param items One or more items to insert starting from `start`.
+     * @return Items that were removed from the array.
+     */
+    splice(path: string, start: number, deleteCount: number, ...items: any[]): any[];
+    /**
+     * Remove the first item from an array and notify interested parties of the change.
+     *
+     * @param path Path to the array to modify.
+     * @return Item that was removed from the array.
+     */
+    shift(path: string): any;
+    /**
+     * Add items to the beginning of an array and notify interested parties of the change.
+     * 
+     * @param path Path to the array to modify.
+     * @param items Items to add to the array.
+     * @return New length of the array after the items are added.
+     */
+    unshift(path: string, ...items: any[]): number;
   }
 
   interface ClassList {
@@ -197,16 +279,15 @@ declare module polymer {
     (node: Event): EventApi;
     flush(): void;
   }
-}
 
-declare var Polymer: {
+  interface Global {
   /**
    * Creates an element constructor and registers it with the document.
    *
    * @param <T> Type of element the constructor should create.
    * @returns Constructor that can be invoked to create a new element instance.
    */
-  <T>(elementDefinition: polymer.IElement): T;
+    <T>(elementDefinition: Object): T;
   /**
    * Creates an element constructor but doesn't register it with the document.
    * Use `document.registerElement` to register the new element constructor.
@@ -214,8 +295,10 @@ declare var Polymer: {
    * @param <T> Type of element the constructor should create.
    * @returns Constructor that can be invoked to create a new element instance.
    */
-  Class<T>(elementDefinition: polymer.IElement): T;
+    Class<T>(elementDefinition: Object): T;
 
-  dom: polymer.DomApi_Static;
-  Base: polymer.Base;
+    dom: DomApi_Static;
+    Base: Base;
+  }
 }
+declare var Polymer: polymer.Global;
