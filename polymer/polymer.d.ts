@@ -90,14 +90,18 @@ declare namespace polymer {
     $$(selector: string): HTMLElement;
     /**
      * Toggles a CSS class on/off.
+     * @param bool Set to `true` to add the CSS class to the element, `false` to remove it.
+     *              By default the CSS class is removed if present, and added if absent.   
      * @param node The node to toggle the CSS class on, defaults to `this`.
      */
-    toggleClass(cssClass: string, bool: boolean, node?: HTMLElement): void;
+    toggleClass(cssClass: string, bool?: boolean, node?: HTMLElement): void;
     /**
      * Toggles an attribute on/off.
+     * @param bool Set to `true` to add the attribute to the element, `false` to remove it.
+     *             By default the attribute is removed if present, and added if absent.
      * @param node The node to toggle the attribute on, defaults to `this`.
      */
-    toggleAttribute(attrName: string, bool: boolean, node?: HTMLElement): void;
+    toggleAttribute(attrName: string, bool?: boolean, node?: HTMLElement): void;
     /** Removes a CSS class from one node and adds it to another. */
     classFollows(cssClass: string, toElement: HTMLElement, fromElement: HTMLElement): void; // static
     /** Removes an attribute from one node and adds it to another. */
@@ -150,6 +154,7 @@ declare namespace polymer {
     importHref(href: string, onload: Function, onerror: Function): HTMLLinkElement;
     /** Creates and configures an element with the given properties. */
     create(tag: string, props: Object): HTMLElement;
+    
     // Path Notification
     /**
      * Notify interested parties that the value at a data path has changed.
@@ -279,26 +284,27 @@ declare namespace polymer {
     (node: Event): EventApi;
     flush(): void;
   }
-
+  
   interface Global {
-  /**
-   * Creates an element constructor and registers it with the document.
-   *
-   * @param <T> Type of element the constructor should create.
-   * @returns Constructor that can be invoked to create a new element instance.
-   */
+    /**
+     * Creates an element constructor and registers it with the document.
+     *
+     * @param <T> Type of element the constructor should create.
+     * @returns Constructor that can be invoked to create a new element instance.
+     */
     <T>(elementDefinition: Object): T;
-  /**
-   * Creates an element constructor but doesn't register it with the document.
-   * Use `document.registerElement` to register the new element constructor.
-   *
-   * @param <T> Type of element the constructor should create.
-   * @returns Constructor that can be invoked to create a new element instance.
-   */
+    /**
+     * Creates an element constructor but doesn't register it with the document.
+     * Use `document.registerElement` to register the new element constructor.
+     *
+     * @param <T> Type of element the constructor should create.
+     * @returns Constructor that can be invoked to create a new element instance.
+     */
     Class<T>(elementDefinition: Object): T;
 
     dom: DomApi_Static;
     Base: Base;
   }
 }
+
 declare var Polymer: polymer.Global;
